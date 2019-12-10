@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -7,9 +7,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.myapplication.Fragments.GoogleMapsFragment;
+import com.example.myapplication.Fragments.PDFFragment;
+import com.example.myapplication.Fragments.ScanFragment;
+import com.example.myapplication.R;
 import com.google.android.material.tabs.TabLayout;
 import com.irfaan008.irbottomnavigation.SpaceItem;
 import com.irfaan008.irbottomnavigation.SpaceNavigationView;
@@ -64,12 +70,37 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(int itemIndex, String itemName) {
-                Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
+                if (itemIndex == 0){
+                    //History
+                    startActivity(new Intent(MainActivity.this,HistoryActivity.class));
+                }else if (itemIndex == 1){
+                    //Settings
+                    startActivity(new Intent(MainActivity.this,SettingsActivity.class));
+                }else if (itemIndex == 2){
+                    //Credit
+                    startActivity(new Intent(MainActivity.this,AttributionActivity.class));
+                }else if (itemIndex == 3){
+                    //Rate It
+
+                }
             }
 
             @Override
             public void onItemReselected(int itemIndex, String itemName) {
-                Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
+                if (itemIndex == 0){
+                    //History
+                    startActivity(new Intent(MainActivity.this,HistoryActivity.class));
+                }else if (itemIndex == 1){
+                    //Settings
+                    startActivity(new Intent(MainActivity.this,SettingsActivity.class));
+                }else if (itemIndex == 2){
+                    //Credit
+                    startActivity(new Intent(MainActivity.this,AttributionActivity.class));
+                }else if (itemIndex == 3){
+                    //Rate It
+
+                }
+                //Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -110,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 7 total pages.
             return 3;
         }
 
@@ -121,4 +151,5 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         spaceNavigationView.onSaveInstanceState(outState);
     }
+
 }
