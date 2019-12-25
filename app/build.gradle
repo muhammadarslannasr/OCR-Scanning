@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.example.myapplication"
+        applicationId "com.theftfound.ocrscanning"
         minSdkVersion 15
         targetSdkVersion 29
         versionCode 1
@@ -15,6 +15,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue "string","banner_history","ca-app-pub-6343128929720966/8258266768"
+        }
+        debug{
+            resValue "string","banner_history","ca-app-pub-3940256099942544/6300978111"
         }
     }
 }
@@ -26,6 +30,7 @@ dependencies {
     implementation 'com.github.irfaan008:IRBottomNavigationView:1.0.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.gms:play-services-vision:19.0.0'
+    implementation 'com.google.android.gms:play-services-ads:18.3.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'

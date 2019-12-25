@@ -1,14 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context=".Fragments.ScanFragment">
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:textAlignment="center"
-        android:layout_height="match_parent"
-        android:text="PDF Fragment" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:layout_height="match_parent">
 
-</RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="4dp"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/getImage_ID"
+                    android:gravity="center"
+                    android:layout_weight="1"
+                    android:background="@drawable/style_edittext_round_btn"
+                    android:text="Gallery"
+                    android:textColor="@android:color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:id="@+id/ocrScanning_ID"
+                    android:text="Scanning"
+                    android:textColor="@android:color/white"
+                    android:layout_weight="1"
+                    android:background="@drawable/style_edittext_round_btn"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+
+            <ImageView
+                android:id="@+id/pauseBtnID"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:src="@drawable/pause_ic"/>
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"/>
+
+            <TextView
+                android:id="@+id/text_ID"
+                android:layout_below="@id/imageView"
+                android:text="Muhammad Arslan Nasr"
+                android:textAlignment="center"
+                android:visibility="invisible"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+
+
+</LinearLayout>
