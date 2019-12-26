@@ -86,9 +86,7 @@ public class PDFFragment extends Fragment {
         ocrScanning_ID.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getTextFromImage();
-
             }
         });
 
@@ -129,10 +127,11 @@ public class PDFFragment extends Fragment {
                 TextBlock myItem = items.valueAt(i);
                 sb.append(myItem.getValue());
                 sb.append("\n");
+                text_ID.setText(sb.toString());
+                showDialog();
 
             }
-            text_ID.setText(sb.toString());
-            showDialog();
+
         }
 
     }

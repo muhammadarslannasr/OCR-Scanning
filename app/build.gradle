@@ -15,10 +15,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            resValue "string","banner_history","ca-app-pub-6343128929720966/8258266768"
+            resValue "string","banner_ID","ca-app-pub-6343128929720966/8258266768"
+            resValue "string","INTERSTITIAL_ADD_ID","ca-app-pub-3940256099942544/1033173712"
         }
         debug{
-            resValue "string","banner_history","ca-app-pub-3940256099942544/6300978111"
+            resValue "string","banner_ID","ca-app-pub-3940256099942544/6300978111"
+            resValue "string","INTERSTITIAL_ADD_ID","ca-app-pub-3940256099942544/1033173712"
         }
     }
 }

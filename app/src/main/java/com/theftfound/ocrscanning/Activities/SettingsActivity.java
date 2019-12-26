@@ -32,14 +32,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         //Casting Widget's
         switch_3 = findViewById(R.id.switch_3);
-        switch_4 = findViewById(R.id.switch_4);
+        //switch_4 = findViewById(R.id.switch_4);
 
         preferences = getSharedPreferences("PREFS",0);
         stateSwitch3 = preferences.getBoolean("switch3",false);
-        stateSwitch4 = preferences.getBoolean("switch4",false);
+        //stateSwitch4 = preferences.getBoolean("switch4",false);
 
         switch_3.setChecked(stateSwitch3);
-        switch_4.setChecked(stateSwitch4);
+        //switch_4.setChecked(stateSwitch4);
 
         switch_3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,17 +53,17 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-        switch_4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stateSwitch4 = !stateSwitch4;
-                switch_4.setChecked(stateSwitch4);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean("switch4",stateSwitch4);
-                editor.apply();
-
-            }
-        });
+//        switch_4.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                stateSwitch4 = !stateSwitch4;
+//                switch_4.setChecked(stateSwitch4);
+//                SharedPreferences.Editor editor = preferences.edit();
+//                editor.putBoolean("switch4",stateSwitch4);
+//                editor.apply();
+//
+//            }
+//        });
     }
 
     @Override
