@@ -127,10 +127,10 @@ public class PDFFragment extends Fragment {
                 TextBlock myItem = items.valueAt(i);
                 sb.append(myItem.getValue());
                 sb.append("\n");
-                text_ID.setText(sb.toString());
-                showDialog();
-
             }
+
+            text_ID.setText(sb.toString());
+            showDialog();
 
         }
 
@@ -239,13 +239,13 @@ public class PDFFragment extends Fragment {
 
                 if (state == 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        pauseBtnID.setBackground(getResources().getDrawable(R.drawable.play_ic));
+                        pauseBtnID.setBackground(getResources().getDrawable(R.drawable.pause_ic));
                         speak(sb.toString());
                         state = 1;
                     }
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        pauseBtnID.setBackground(getResources().getDrawable(R.drawable.pause_ic));
+                        pauseBtnID.setBackground(getResources().getDrawable(R.drawable.play_ic));
                         if (t1 != null) {
                             t1.stop();
                             t1.shutdown();
@@ -265,7 +265,7 @@ public class PDFFragment extends Fragment {
     private void setupMediaRecorder() {
         myAudioRecorder = new MediaRecorder();
         myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
         myAudioRecorder.setOutputFile(pathSave);
     }

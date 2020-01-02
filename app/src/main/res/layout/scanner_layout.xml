@@ -53,16 +53,25 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/pauseBtn_ID"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/play_ic" />
+
+            <Button
                 android:id="@+id/shareBtn_ID"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:background="@drawable/share_icon_for_history" />
 
+
             <Button
                 android:id="@+id/deleteBtn_ID"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:background="@drawable/delete_history_ic" />
+                android:background="@drawable/deelete_icon_for_history" />
+
+
 
         </LinearLayout>
 

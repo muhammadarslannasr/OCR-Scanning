@@ -1,8 +1,10 @@
 package com.theftfound.ocrscanning.Adapters;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -11,11 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseHelper;
@@ -23,8 +27,11 @@ import com.theftfound.ocrscanning.DatabaseUtils.DatabaseRecordingHelper;
 import com.theftfound.ocrscanning.Models.Product;
 import com.theftfound.ocrscanning.R;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.UUID;
 
 public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<RecordingRecyclerViewAdapter.ViewHolder> {
     private Context context;
@@ -32,6 +39,11 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
     private ArrayList<Object> productArrayList;
     int state = 0;
     TextToSpeech t1;
+    private AlertDialog.Builder alertDialogBuilder;
+    private LayoutInflater inflater;
+    Button saveRecordingBtn_ID;
+    Button stopRecordingBtn_ID;
+    private AlertDialog dialog;
     public RecordingRecyclerViewAdapter(Context context, ArrayList<Object> productArrayList) {
         this.context = context;
         this.productArrayList = productArrayList;
@@ -85,7 +97,8 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
                 @Override
                 public void onClick(View view) {
                     Product product = (Product) productArrayList.get(getAdapterPosition());
-                    Toast.makeText(context, product.getSongPath()+"", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, product.getProductBarcodeNo()+"", Toast.LENGTH_SHORT).show();
+                    showCustomDialog(product.getSongPath());
                 }
             });
 
@@ -134,13 +147,13 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
                     Product product = (Product) productArrayList.get(getAdapterPosition());
                     if (state == 0){
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            pauseBtn_ID.setBackground(context.getResources().getDrawable(R.drawable.play_ic));
-                            speak(product.getProductBarcodeNo());
+                            pauseBtn_ID.setBackground(context.getResources().getDrawable(R.drawable.pause_ic));
+                            speak(product.getSongPath());
                             state = 1;
                         }
                     }else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            pauseBtn_ID.setBackground(context.getResources().getDrawable(R.drawable.pause_ic));
+                            pauseBtn_ID.setBackground(context.getResources().getDrawable(R.drawable.play_ic));
                             if(t1 !=null){
                                 t1.stop();
                                 t1.shutdown();
@@ -167,13 +180,63 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
         });
     }
 
+    public void showCustomDialog(final String paragraphValue) {
+        alertDialogBuilder = new AlertDialog.Builder(context);
+        inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_recording_backward, null);
+
+        final TextView scanningTxt_ID = (TextView) view.findViewById(R.id.scanningTxt_ID);
+        RelativeLayout backBtn_ID = (RelativeLayout) view.findViewById(R.id.backBtn_ID);
+        final RelativeLayout pauseBtnID = (RelativeLayout) view.findViewById(R.id.pauseBtnID);
+        RelativeLayout arrow_forwardID = (RelativeLayout) view.findViewById(R.id.nextBtnID);
+        saveRecordingBtn_ID = (Button) view.findViewById(R.id.saveRecordingBtn_ID);
+        stopRecordingBtn_ID = (Button) view.findViewById(R.id.stopRecordingBtn_ID);
+
+        scanningTxt_ID.setText(paragraphValue);
+
+        pauseBtnID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (state == 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        pauseBtnID.setBackground(context.getResources().getDrawable(R.drawable.pause_ic));
+                        speak(paragraphValue);
+                        state = 1;
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        pauseBtnID.setBackground(context.getResources().getDrawable(R.drawable.play_ic));
+                        if (t1 != null) {
+                            t1.stop();
+                            t1.shutdown();
+                            state = 0;
+                        }
+
+                    }
+                }
+            }
+        });
+
+        alertDialogBuilder.setView(view);
+        dialog = alertDialogBuilder.create();
+        dialog.show();
+    }
+
+
     public static void shareScanData(Context context,String text) {
-        String sharePath = Environment.getExternalStorageDirectory().getPath()
-                + text;
-        Uri uri = Uri.parse(sharePath);
+//        String sharePath = Environment.getExternalStorageDirectory()+text;
+//        Uri uri = Uri.parse(sharePath);
+//        Intent share = new Intent(Intent.ACTION_SEND);
+//        share.setType("audio/*");
+//        share.putExtra(Intent.EXTRA_STREAM, uri);
+//        context.startActivity(Intent.createChooser(share, "Share Sound File"));
+        File f=new File(text);
+        Uri uri = Uri.parse("file://"+f.getAbsolutePath());
         Intent share = new Intent(Intent.ACTION_SEND);
-        share.setType("audio/*");
         share.putExtra(Intent.EXTRA_STREAM, uri);
-        context.startActivity(Intent.createChooser(share, "Share Sound File"));
+        share.setType("audio/*");
+        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        context.startActivity(Intent.createChooser(share, "Share audio File"));
     }
 }

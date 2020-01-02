@@ -3,10 +3,13 @@ package com.theftfound.ocrscanning.Adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
+import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,15 +22,31 @@ import com.theftfound.ocrscanning.Models.Product;
 import com.theftfound.ocrscanning.R;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ScannerRecyclerViewAdapter extends RecyclerView.Adapter<ScannerRecyclerViewAdapter.ViewHolder> {
     private Context context;
     private static final String KEY_ID = "id";
     private ArrayList<Object> productArrayList;
+    int state = 0;
+    TextToSpeech t1;
+    private AlertDialog.Builder alertDialogBuilder;
+    private LayoutInflater inflater;
+    Button saveRecordingBtn_ID;
+    Button stopRecordingBtn_ID;
+    private AlertDialog dialog;
 
     public ScannerRecyclerViewAdapter(Context context, ArrayList<Object> productArrayList) {
         this.context = context;
         this.productArrayList = productArrayList;
+        t1=new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                }
+            }
+        });
     }
 
     @NonNull
@@ -41,7 +60,7 @@ public class ScannerRecyclerViewAdapter extends RecyclerView.Adapter<ScannerRecy
     @Override
     public void onBindViewHolder(@NonNull ScannerRecyclerViewAdapter.ViewHolder holder, int position) {
         Product product = (Product) productArrayList.get(position);
-        holder.scanner_txt.setText(product.getProductBarcodeNo());
+        holder.scanner_txt.setText(product.getSongPath());
         holder.time_ID.setText(product.getScanDate()+" "+product.getScanTime());
     }
 
@@ -53,7 +72,7 @@ public class ScannerRecyclerViewAdapter extends RecyclerView.Adapter<ScannerRecy
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView scanner_txt;
         private TextView time_ID;
-        private Button shareBtn_ID,deleteBtn_ID;
+        private Button shareBtn_ID,deleteBtn_ID,pauseBtn_ID;
         public ViewHolder(@NonNull View itemView,Context ctx) {
             super(itemView);
             context = ctx;
@@ -63,12 +82,13 @@ public class ScannerRecyclerViewAdapter extends RecyclerView.Adapter<ScannerRecy
             scanner_txt = itemView.findViewById(R.id.scanner_txt);
             shareBtn_ID = itemView.findViewById(R.id.shareBtn_ID);
             deleteBtn_ID = itemView.findViewById(R.id.deleteBtn_ID);
+            pauseBtn_ID = itemView.findViewById(R.id.pauseBtn_ID);
             //RecyclerView setOnClickListener
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Product product = (Product) productArrayList.get(getAdapterPosition());
-                    shareScanData(context,product.getProductBarcodeNo());
+                    showCustomDialog(product.getSongPath());
                 }
             });
 
@@ -110,7 +130,89 @@ public class ScannerRecyclerViewAdapter extends RecyclerView.Adapter<ScannerRecy
 
                 }
             });
+
+            pauseBtn_ID.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Product product = (Product) productArrayList.get(getAdapterPosition());
+                    if (state == 0){
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            pauseBtn_ID.setBackground(context.getResources().getDrawable(R.drawable.pause_ic));
+                            speak(product.getSongPath());
+                            state = 1;
+                        }
+                    }else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            pauseBtn_ID.setBackground(context.getResources().getDrawable(R.drawable.play_ic));
+                            if(t1 !=null){
+                                t1.stop();
+                                t1.shutdown();
+                                state = 0;
+                            }
+
+                        }
+                    }
+
+                }
+            });
+
         }
+    }
+
+    public void showCustomDialog(final String paragraphValue) {
+        alertDialogBuilder = new AlertDialog.Builder(context);
+        inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.custom_dialog_recording_backward, null);
+
+        final TextView scanningTxt_ID = (TextView) view.findViewById(R.id.scanningTxt_ID);
+        RelativeLayout backBtn_ID = (RelativeLayout) view.findViewById(R.id.backBtn_ID);
+        final RelativeLayout pauseBtnID = (RelativeLayout) view.findViewById(R.id.pauseBtnID);
+        RelativeLayout arrow_forwardID = (RelativeLayout) view.findViewById(R.id.nextBtnID);
+        saveRecordingBtn_ID = (Button) view.findViewById(R.id.saveRecordingBtn_ID);
+        stopRecordingBtn_ID = (Button) view.findViewById(R.id.stopRecordingBtn_ID);
+
+        scanningTxt_ID.setText(paragraphValue);
+
+        pauseBtnID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (state == 0) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        pauseBtnID.setBackground(context.getResources().getDrawable(R.drawable.pause_ic));
+                        speak(paragraphValue);
+                        state = 1;
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        pauseBtnID.setBackground(context.getResources().getDrawable(R.drawable.play_ic));
+                        if (t1 != null) {
+                            t1.stop();
+                            t1.shutdown();
+                            state = 0;
+                        }
+
+                    }
+                }
+            }
+        });
+
+        alertDialogBuilder.setView(view);
+        dialog = alertDialogBuilder.create();
+        dialog.show();
+    }
+
+    public void speak(final String text) {
+        //t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+        t1=new TextToSpeech(context, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                    t1.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+                }
+            }
+        });
     }
 
     public static void shareScanData(Context context,String text) {

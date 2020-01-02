@@ -13,14 +13,14 @@ import java.util.ArrayList;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String LOG = "DatabaseHelper";
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "EmployeDatabase";
+    private static final String DATABASE_NAME = "ScanDatabase";
     private static final String TABLE_PRODUCT = "product";
     private static final String KEY_ID = "id";
 
     private static final String CREATE_TABLE_INSTRUCTOR = "create table if not exists "
             + TABLE_PRODUCT
             + " (id integer primary key autoincrement,"
-            + " product_code varchar(30)," + " scan_time varchar(30), " + " scan_date varchar(30));";
+            + " product_code varchar(30)," + " product_sound varchar(60)," + " scan_time varchar(30), " + " scan_date varchar(30));";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -48,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put("product_code", product.getProductBarcodeNo());
+        values.put("product_sound", product.getSongPath());
         values.put("scan_time", product.getScanTime());
         values.put("scan_date", product.getScanDate());
         db.insert(TABLE_PRODUCT, null, values);
@@ -69,9 +70,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 Product product = new Product();
                 product.setProductNo(cursor.getString(0));
-                product.setProductBarcodeNo(cursor.getString(1));
-                product.setScanTime(cursor.getString(2));
-                product.setScanDate(cursor.getString(3));
+                product.setSongPath(cursor.getString(1));
+                product.setProductBarcodeNo(cursor.getString(2));
+                product.setScanTime(cursor.getString(3));
+                product.setScanDate(cursor.getString(4));
                 // Adding contact to list
                 productArrayList.add(product);
             } while (cursor.moveToNext());

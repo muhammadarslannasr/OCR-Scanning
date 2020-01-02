@@ -35,7 +35,6 @@
                 <Button
                     android:id="@+id/ocrScanning_ID"
                     android:text="Scanning"
-                    android:enabled="false"
                     android:textColor="@android:color/white"
                     android:layout_weight="1"
                     android:background="@drawable/style_edittext_round_btn"
