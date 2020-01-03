@@ -3,6 +3,7 @@ package com.theftfound.ocrscanning.Adapters;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -21,6 +23,7 @@ import com.theftfound.ocrscanning.DatabaseUtils.DatabaseHelper;
 import com.theftfound.ocrscanning.Models.Product;
 import com.theftfound.ocrscanning.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -216,11 +219,12 @@ public class ScannerRecyclerViewAdapter extends RecyclerView.Adapter<ScannerRecy
     }
 
     public static void shareScanData(Context context,String text) {
-        final String appPackageName = context.getPackageName();
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT,text+"");
-        sendIntent.setType("text/plain");
-        context.startActivity(sendIntent);
+        File f=new File(text);
+        Uri path = FileProvider.getUriForFile(context,"com.restart.shareaudiofiles.fileprovider",f);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, path);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareIntent.setType("audio/*");
+        context.startActivity(Intent.createChooser(shareIntent, "Share..."));
     }
 }

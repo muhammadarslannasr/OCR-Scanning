@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseHelper;
@@ -225,18 +226,12 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
 
 
     public static void shareScanData(Context context,String text) {
-//        String sharePath = Environment.getExternalStorageDirectory()+text;
-//        Uri uri = Uri.parse(sharePath);
-//        Intent share = new Intent(Intent.ACTION_SEND);
-//        share.setType("audio/*");
-//        share.putExtra(Intent.EXTRA_STREAM, uri);
-//        context.startActivity(Intent.createChooser(share, "Share Sound File"));
         File f=new File(text);
-        Uri uri = Uri.parse("file://"+f.getAbsolutePath());
-        Intent share = new Intent(Intent.ACTION_SEND);
-        share.putExtra(Intent.EXTRA_STREAM, uri);
-        share.setType("audio/*");
-        share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(Intent.createChooser(share, "Share audio File"));
+        Uri path = FileProvider.getUriForFile(context,"com.restart.shareaudiofiles.fileprovider",f);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, path);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        shareIntent.setType("audio/*");
+        context.startActivity(Intent.createChooser(shareIntent, "Share..."));
     }
 }
