@@ -1,5 +1,6 @@
 package com.theftfound.ocrscanning.Activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -9,12 +10,17 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.theftfound.ocrscanning.Fragments.PDFFragment;
 import com.theftfound.ocrscanning.Fragments.ScanFragment;
 import com.theftfound.ocrscanning.R;
@@ -29,13 +35,23 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private InterstitialAd mInterstitialHistoryAd;
+    private InterstitialAd mInterstitialSettingsAd;
+    private InterstitialAd mInterstitialAttributionAd;
+    private InterstitialAd mInterstitialRateAppAd;
+    int appLaunchCount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mInterstitialHistoryAd = newInterstitialHiistoryAd();
+        mInterstitialSettingsAd = newInterstitialSettingsAd();
+        mInterstitialAttributionAd = newInterstitialAttributionAd();
+        mInterstitialAttributionAd = newInterstitialAttributionAd();
+        mInterstitialRateAppAd = newInterstitialRatingAd();
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
+        //check Launch Count
+        checkLaunchCount();
         mViewPager = findViewById(R.id.containerEvents);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         tabLayout = findViewById(R.id.tabsEvents);
@@ -46,9 +62,11 @@ public class MainActivity extends AppCompatActivity {
             public void onTabSelected(TabLayout.Tab tab) {
                 mViewPager.setCurrentItem(tab.getPosition());
             }
+
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
             }
+
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
             }
@@ -67,56 +85,162 @@ public class MainActivity extends AppCompatActivity {
         spaceNavigationView.setSpaceOnClickListener(new SpaceOnClickListener() {
             @Override
             public void onCentreButtonClick() {
-                Toast.makeText(MainActivity.this,"onCentreButtonClick", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "onCentreButtonClick", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onItemClick(int itemIndex, String itemName) {
-                if (itemIndex == 0){
+                if (itemIndex == 0) {
                     //History
-                    startActivity(new Intent(MainActivity.this,HistoryActivity.class));
-                }else if (itemIndex == 1){
+                    if (mInterstitialHistoryAd.isLoaded()) {
+                        mInterstitialHistoryAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialHistoryAd = newInterstitialHiistoryAd();
+                                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                            }
+                        });
+                        mInterstitialHistoryAd.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                    }
+
+                } else if (itemIndex == 1) {
                     //Settings
-                    startActivity(new Intent(MainActivity.this,SettingsActivity.class));
-                }else if (itemIndex == 2){
+                    if (mInterstitialSettingsAd.isLoaded()) {
+                        mInterstitialSettingsAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialSettingsAd = newInterstitialSettingsAd();
+                                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                            }
+                        });
+                        mInterstitialSettingsAd.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                    }
+                } else if (itemIndex == 2) {
                     //Credit
-                    startActivity(new Intent(MainActivity.this,AttributionActivity.class));
-                }else if (itemIndex == 3){
+                    if (mInterstitialAttributionAd.isLoaded()) {
+                        mInterstitialAttributionAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialAttributionAd = newInterstitialAttributionAd();
+                                startActivity(new Intent(MainActivity.this, AttributionActivity.class));
+                            }
+                        });
+                        mInterstitialAttributionAd.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, AttributionActivity.class));
+                    }
+                } else if (itemIndex == 3) {
                     //Rate It
-                    rateUsOurApp(MainActivity.this);
+                    if (mInterstitialRateAppAd.isLoaded()) {
+                        mInterstitialRateAppAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialRateAppAd = newInterstitialAttributionAd();
+                                rateUsOurApp(MainActivity.this);
+                            }
+                        });
+                        mInterstitialRateAppAd.show();
+                    } else {
+                        rateUsOurApp(MainActivity.this);
+                    }
                 }
             }
 
             @Override
             public void onItemReselected(int itemIndex, String itemName) {
-                if (itemIndex == 0){
+                if (itemIndex == 0) {
                     //History
-                    startActivity(new Intent(MainActivity.this,HistoryActivity.class));
-                }else if (itemIndex == 1){
+                    if (mInterstitialHistoryAd.isLoaded()) {
+                        mInterstitialHistoryAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialHistoryAd = newInterstitialHiistoryAd();
+                                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                            }
+                        });
+                        mInterstitialHistoryAd.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                    }
+                } else if (itemIndex == 1) {
                     //Settings
-                    startActivity(new Intent(MainActivity.this,SettingsActivity.class));
-                }else if (itemIndex == 2){
+                    if (mInterstitialSettingsAd.isLoaded()) {
+                        mInterstitialSettingsAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialSettingsAd = newInterstitialSettingsAd();
+                                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                            }
+                        });
+                        mInterstitialSettingsAd.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                    }
+                } else if (itemIndex == 2) {
                     //Credit
-                    startActivity(new Intent(MainActivity.this,AttributionActivity.class));
-                }else if (itemIndex == 3){
+                    if (mInterstitialAttributionAd.isLoaded()) {
+                        mInterstitialAttributionAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialAttributionAd = newInterstitialAttributionAd();
+                                startActivity(new Intent(MainActivity.this, AttributionActivity.class));
+                            }
+                        });
+                        mInterstitialAttributionAd.show();
+                    } else {
+                        startActivity(new Intent(MainActivity.this, AttributionActivity.class));
+                    }
+                } else if (itemIndex == 3) {
                     //Rate It
-                    rateUsOurApp(MainActivity.this);
+                    if (mInterstitialRateAppAd.isLoaded()) {
+                        mInterstitialRateAppAd.setAdListener(new AdListener() {
+                            @Override
+                            public void onAdClosed() {
+                                mInterstitialRateAppAd = newInterstitialAttributionAd();
+                                rateUsOurApp(MainActivity.this);
+                            }
+                        });
+                        mInterstitialRateAppAd.show();
+                    } else {
+                        rateUsOurApp(MainActivity.this);
+                    }
+
                 }
-                //Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
             }
         });
 
         spaceNavigationView.setSpaceOnLongClickListener(new SpaceOnLongClickListener() {
             @Override
             public void onCentreButtonLongClick() {
-                Toast.makeText(MainActivity.this,"onCentreButtonLongClick", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "onCentreButtonLongClick", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onItemLongClick(int itemIndex, String itemName) {
-                Toast.makeText(MainActivity.this, itemIndex + " " + itemName, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, itemIndex + "" + itemName, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void checkLaunchCount() {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+        appLaunchCount = pref.getInt("appLaunchCount",-1);
+        if(appLaunchCount==2){
+            // code to show dialog
+            showRatingDialog();
+            // reset
+            appLaunchCount=0;
+        } else {
+            // increment count
+            appLaunchCount = appLaunchCount+1;
+        }
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("appLaunchCount", appLaunchCount);
+        editor.apply();
     }
 
     public static void rateUsOurApp(Context context) {
@@ -144,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
 
-            switch(position){
+            switch (position) {
                 case 0:
                     return new ScanFragment();
                 case 1:
@@ -168,6 +292,60 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         spaceNavigationView.onSaveInstanceState(outState);
+    }
+
+    public InterstitialAd newInterstitialHiistoryAd() {
+        mInterstitialHistoryAd = new InterstitialAd(MainActivity.this);
+        mInterstitialHistoryAd.setAdUnitId(getResources().getString(R.string.INTERSTITIAL_HISTORY_ID));
+        mInterstitialHistoryAd.loadAd(new AdRequest.Builder().build());
+        return mInterstitialHistoryAd;
+    }
+
+    public InterstitialAd newInterstitialSettingsAd() {
+        mInterstitialSettingsAd = new InterstitialAd(MainActivity.this);
+        mInterstitialSettingsAd.setAdUnitId(getResources().getString(R.string.INTERSTITIAL_SETTINGS_ID));
+        mInterstitialSettingsAd.loadAd(new AdRequest.Builder().build());
+        return mInterstitialSettingsAd;
+    }
+
+    public InterstitialAd newInterstitialAttributionAd() {
+        mInterstitialAttributionAd = new InterstitialAd(MainActivity.this);
+        mInterstitialAttributionAd.setAdUnitId(getResources().getString(R.string.INTERSTITIAL_ATTRIBUTION_ID));
+        mInterstitialAttributionAd.loadAd(new AdRequest.Builder().build());
+        return mInterstitialAttributionAd;
+    }
+
+    public InterstitialAd newInterstitialRatingAd() {
+        mInterstitialRateAppAd = new InterstitialAd(MainActivity.this);
+        mInterstitialRateAppAd.setAdUnitId(getResources().getString(R.string.INTERSTITIAL_RATING_ID));
+        mInterstitialRateAppAd.loadAd(new AdRequest.Builder().build());
+        return mInterstitialRateAppAd;
+    }
+
+    private void showRatingDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("Please acquired few seconds to rate this app ?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String packageName = getPackageName();
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + packageName)));
+                } catch (ActivityNotFoundException e) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + packageName)));
+                }
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                System.exit(0);
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
 }

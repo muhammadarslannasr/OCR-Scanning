@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "654970577124",
+    "firebase_url": "https://reader-ocr-scanner.firebaseio.com",
+    "project_id": "reader-ocr-scanner",
+    "storage_bucket": "reader-ocr-scanner.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654970577124:android:e62c4f23c792c40612ccf1",
+        "android_client_info": {
+          "package_name": "com.theftfound.ocrscanning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "654970577124-7jo3cnsh65rhg2lg7rr4ccvqa7hb6s9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2tIhvDsvVKFvdFou0xhyGCtkJYSvrDCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "654970577124-7jo3cnsh65rhg2lg7rr4ccvqa7hb6s9v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

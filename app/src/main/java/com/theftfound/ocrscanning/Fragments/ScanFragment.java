@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -30,6 +31,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseHelper;
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseRecordingHelper;
 import com.theftfound.ocrscanning.Models.Product;
@@ -65,6 +69,8 @@ public class ScanFragment extends Fragment {
     String pathSave = "";
     int state = 0;
     TextToSpeech t1;
+    private InterstitialAd mInterstitialAd;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -81,31 +87,52 @@ public class ScanFragment extends Fragment {
             askCameraPermission();
         }
 
-//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, 123);
-//        }else {
-//            startTextRecognizer();
-//        }
-
-
         imageView_foto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (fullText != null){
-                    if (preferences.getBoolean("switch3", false)) {
-                        showDialogHistory(fullText, getScanTime(), getScanDate());
-                    } else if (preferences.getBoolean("switch3", true)) {
-                        showDialogHistory(fullText, getScanTime(), getScanDate());
-                    }
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.setAdListener(new AdListener() {
+                        @Override
+                        public void onAdClosed() {
+                            mInterstitialAd = newInterstitialAd();
+                            if (fullText != null) {
+                                if (preferences.getBoolean("switch3", false)) {
+                                    showDialogHistory(fullText, getScanTime(), getScanDate());
+                                } else if (preferences.getBoolean("switch3", true)) {
+                                    showDialogHistory(fullText, getScanTime(), getScanDate());
+                                }
 
-                }else {
-                    Toast.makeText(getActivity(), "Scan text is empty!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getActivity(), "Scan text is empty!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    mInterstitialAd.show();
+                } else {
+                    if (fullText != null) {
+                        if (preferences.getBoolean("switch3", false)) {
+                            showDialogHistory(fullText, getScanTime(), getScanDate());
+                        } else if (preferences.getBoolean("switch3", true)) {
+                            showDialogHistory(fullText, getScanTime(), getScanDate());
+                        }
+
+                    } else {
+                        Toast.makeText(getActivity(), "Scan text is empty!", Toast.LENGTH_SHORT).show();
+                    }
                 }
+
+
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mInterstitialAd = newInterstitialAd();
     }
 
     @Override
@@ -145,7 +172,7 @@ public class ScanFragment extends Fragment {
                     } else {
                         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, 123);
-                        }else {
+                        } else {
                             startTextRecognizer();
                         }
                     }
@@ -203,7 +230,7 @@ public class ScanFragment extends Fragment {
 
         if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startTextRecognizer();
-        }else {
+        } else {
             Toast.makeText(getActivity(), "Permission denied", Toast.LENGTH_SHORT).show();
         }
 
@@ -252,6 +279,13 @@ public class ScanFragment extends Fragment {
         builder.show();
     }
 
+    public InterstitialAd newInterstitialAd() {
+        mInterstitialAd = new InterstitialAd(getActivity());
+        mInterstitialAd.setAdUnitId(getResources().getString(R.string.INTERSTITIAL_ADD_ID));
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        return mInterstitialAd;
+    }
+
     private void showDialogNotSavingHistory(final String scanContent, final String currentTime, final String currentDate) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
@@ -267,7 +301,7 @@ public class ScanFragment extends Fragment {
         builder.show();
     }
 
-    private void showDialogHistory(final String scanContent,String time,String date) {
+    private void showDialogHistory(final String scanContent, String time, String date) {
 
         alertDialogBuilder = new AlertDialog.Builder(getActivity());
         inflater = LayoutInflater.from(getActivity());
