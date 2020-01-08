@@ -23,11 +23,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.theftfound.ocrscanning.DatabaseUtils.DatabaseHelper;
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseRecordingHelper;
 import com.theftfound.ocrscanning.Models.Product;
 import com.theftfound.ocrscanning.R;
@@ -63,7 +65,10 @@ public class PDFFragment extends Fragment {
     private MediaRecorder myAudioRecorder;
     Button saveRecordingBtn_ID;
     Button stopRecordingBtn_ID;
-
+    private AlertDialog.Builder alertDialogBuilderTitle;
+    private AlertDialog dialogTitle;
+    private LayoutInflater inflaterTitle;
+    Button saveNormalBtn_ID;
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -173,8 +178,20 @@ public class PDFFragment extends Fragment {
         RelativeLayout arrow_forwardID = (RelativeLayout) view.findViewById(R.id.nextBtnID);
         saveRecordingBtn_ID = (Button) view.findViewById(R.id.saveRecordingBtn_ID);
         stopRecordingBtn_ID = (Button) view.findViewById(R.id.stopRecordingBtn_ID);
-
+        saveNormalBtn_ID = (Button) view.findViewById(R.id.saveNormalBtn_ID);
         scanningTxt_ID.setText(sb.toString());
+
+        saveNormalBtn_ID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Ocr History Management
+                DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                databaseHelper.addProduct(new Product(sb.toString(), getScanTime(), getScanDate(), pathSave));
+                Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            }
+        });
 
         stopRecordingBtn_ID.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,8 +209,9 @@ public class PDFFragment extends Fragment {
                 stopRecordingBtn_ID.setEnabled(false);
                 saveRecordingBtn_ID.setEnabled(true);
 
+                stopVoice();
+                showRecordingTitleDialog(sb.toString(),pathSave);
                 Toast.makeText(getActivity(), "Audio recorded successfully", Toast.LENGTH_LONG).show();
-
                 dialog.dismiss();
             }
         });
@@ -223,8 +241,8 @@ public class PDFFragment extends Fragment {
 
                     Toast.makeText(getActivity(), "Recording....", Toast.LENGTH_SHORT).show();
 
-                    DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
-                    databaseHelper.addProduct(new Product(sb.toString(), getScanTime(), getScanDate(), pathSave));
+//                    DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
+//                    databaseHelper.addProduct(new Product(sb.toString(), getScanTime(), getScanDate(), pathSave));
 
                 }
 
@@ -259,8 +277,43 @@ public class PDFFragment extends Fragment {
 
         alertDialogBuilder.setView(view);
         dialog = alertDialogBuilder.create();
+        dialog.setCancelable(false);
         dialog.show();
     }
+
+    public void showRecordingTitleDialog(final String scanContent,final String pathSave){
+        alertDialogBuilderTitle = new AlertDialog.Builder(getActivity());
+        inflaterTitle = LayoutInflater.from(getActivity());
+        View view = inflaterTitle.inflate(R.layout.title_dialog_view, null);
+
+        final EditText etTitle_ID = view.findViewById(R.id.etTitle_ID);
+        Button saveBtnID = view.findViewById(R.id.saveBtnID);
+        Button cancelBtnID = view.findViewById(R.id.cancelBtnID);
+
+        saveBtnID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
+                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave));
+                Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
+                dialogTitle.dismiss();
+            }
+        });
+
+        cancelBtnID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogTitle.dismiss();
+            }
+        });
+
+        alertDialogBuilderTitle.setView(view);
+        dialogTitle = alertDialogBuilderTitle.create();
+        dialogTitle.setCancelable(false);
+        dialogTitle.show();
+    }
+
 
     private void setupMediaRecorder() {
         myAudioRecorder = new MediaRecorder();
@@ -276,6 +329,13 @@ public class PDFFragment extends Fragment {
             t1.shutdown();
         }
         super.onPause();
+    }
+
+    public void stopVoice(){
+        if (t1 != null) {
+            t1.stop();
+            t1.shutdown();
+        }
     }
 
     @Override

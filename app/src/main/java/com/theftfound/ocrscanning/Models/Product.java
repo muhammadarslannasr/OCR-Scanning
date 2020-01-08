@@ -8,6 +8,15 @@ public class Product implements Serializable {
     private String scanTime;
     private String scanDate;
     private String songPath;
+    private String sound_storeText;
+
+    public String getSound_storeText() {
+        return sound_storeText;
+    }
+
+    public void setSound_storeText(String sound_storeText) {
+        this.sound_storeText = sound_storeText;
+    }
 
     public String getProductBarcodeNo() {
         return productBarcodeNo;
@@ -60,6 +69,14 @@ public class Product implements Serializable {
         this.scanTime = scanTime;
         this.scanDate = scanDate;
         this.songPath = songPath;
+    }
+
+    public Product(String productBarcodeNo, String scanTime, String scanDate,String songPath,String sound_storeText) {
+        this.productBarcodeNo = productBarcodeNo;
+        this.scanTime = scanTime;
+        this.scanDate = scanDate;
+        this.songPath = songPath;
+        this.sound_storeText = sound_storeText;
     }
 
     public Product() {

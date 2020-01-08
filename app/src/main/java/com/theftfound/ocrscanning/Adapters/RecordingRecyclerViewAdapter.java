@@ -98,7 +98,6 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
                 @Override
                 public void onClick(View view) {
                     Product product = (Product) productArrayList.get(getAdapterPosition());
-//                    Toast.makeText(context, product.getProductBarcodeNo()+"", Toast.LENGTH_SHORT).show();
                     showCustomDialog(product.getSongPath());
                 }
             });

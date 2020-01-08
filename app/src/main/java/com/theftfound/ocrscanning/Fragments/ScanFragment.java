@@ -26,6 +26,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -63,8 +64,12 @@ public class ScanFragment extends Fragment {
     private AlertDialog.Builder alertDialogBuilder;
     private AlertDialog dialog;
     private LayoutInflater inflater;
+    private AlertDialog.Builder alertDialogBuilderTitle;
+    private AlertDialog dialogTitle;
+    private LayoutInflater inflaterTitle;
     Button saveRecordingBtn_ID;
     Button stopRecordingBtn_ID;
+    Button saveNormalBtn_ID;
     private MediaRecorder myAudioRecorder;
     String pathSave = "";
     int state = 0;
@@ -248,6 +253,13 @@ public class ScanFragment extends Fragment {
 
     }
 
+    public void stopVoice(){
+        if (t1 != null) {
+            t1.stop();
+            t1.shutdown();
+        }
+    }
+
     public String getScanTime() {
         DateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
         return timeFormat.format(new Date());
@@ -313,8 +325,21 @@ public class ScanFragment extends Fragment {
         RelativeLayout arrow_forwardID = (RelativeLayout) view.findViewById(R.id.nextBtnID);
         saveRecordingBtn_ID = (Button) view.findViewById(R.id.saveRecordingBtn_ID);
         stopRecordingBtn_ID = (Button) view.findViewById(R.id.stopRecordingBtn_ID);
+        saveNormalBtn_ID = (Button) view.findViewById(R.id.saveNormalBtn_ID);
 
         scanningTxt_ID.setText(scanContent);
+
+        saveNormalBtn_ID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //Ocr History Management
+                DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+                databaseHelper.addProduct(new Product(scanContent, getScanTime(), getScanDate(), pathSave));
+                Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            }
+        });
 
         stopRecordingBtn_ID.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -331,7 +356,8 @@ public class ScanFragment extends Fragment {
 
                 stopRecordingBtn_ID.setEnabled(false);
                 saveRecordingBtn_ID.setEnabled(true);
-
+                stopVoice();
+                showRecordingTitleDialog(scanContent,pathSave);
                 Toast.makeText(getActivity(), "Audio recorded successfully", Toast.LENGTH_LONG).show();
 
                 dialog.dismiss();
@@ -363,8 +389,10 @@ public class ScanFragment extends Fragment {
 
                     Toast.makeText(getActivity(), "Recording....", Toast.LENGTH_SHORT).show();
 
-                    DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
-                    databaseHelper.addProduct(new Product(scanContent, getScanTime(), getScanDate(), pathSave));
+//                    DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
+//                    databaseHelper.addProduct(new Product(scanContent, getScanTime(), getScanDate(), pathSave));
+                    //Recording History Management
+
 
                 }
 
@@ -400,6 +428,39 @@ public class ScanFragment extends Fragment {
         alertDialogBuilder.setView(view);
         dialog = alertDialogBuilder.create();
         dialog.show();
+    }
+
+    public void showRecordingTitleDialog(final String scanContent,final String pathSave){
+        alertDialogBuilderTitle = new AlertDialog.Builder(getActivity());
+        inflaterTitle = LayoutInflater.from(getActivity());
+        View view = inflaterTitle.inflate(R.layout.title_dialog_view, null);
+
+        final EditText etTitle_ID = view.findViewById(R.id.etTitle_ID);
+        Button saveBtnID = view.findViewById(R.id.saveBtnID);
+        Button cancelBtnID = view.findViewById(R.id.cancelBtnID);
+
+        saveBtnID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
+                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave));
+                Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
+                dialogTitle.dismiss();
+            }
+        });
+
+        cancelBtnID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogTitle.dismiss();
+            }
+        });
+
+        alertDialogBuilderTitle.setView(view);
+        dialogTitle = alertDialogBuilderTitle.create();
+        dialogTitle.setCancelable(false);
+        dialogTitle.show();
     }
 
     private void setupMediaRecorder() {
