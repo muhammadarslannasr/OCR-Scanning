@@ -2,7 +2,11 @@ package com.theftfound.ocrscanning.Fragments;
 
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
@@ -35,6 +39,7 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
+import com.theftfound.ocrscanning.Activities.MainActivity;
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseHelper;
 import com.theftfound.ocrscanning.DatabaseUtils.DatabaseRecordingHelper;
 import com.theftfound.ocrscanning.Models.Product;
@@ -70,6 +75,7 @@ public class ScanFragment extends Fragment {
     Button saveRecordingBtn_ID;
     Button stopRecordingBtn_ID;
     Button saveNormalBtn_ID;
+    Button cancelBtn_ID;
     private MediaRecorder myAudioRecorder;
     String pathSave = "";
     int state = 0;
@@ -86,10 +92,15 @@ public class ScanFragment extends Fragment {
         mTextView = (TextView) view.findViewById(R.id.button_exit);
         imageView_foto = (ImageView) view.findViewById(R.id.imageView_foto);
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            startTextRecognizer();
+//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//            startTextRecognizer();
+//        } else {
+//            askCameraPermission();
+//        }
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CAMERA}, 123);
         } else {
-            askCameraPermission();
+            startTextRecognizer();
         }
 
         imageView_foto.setOnClickListener(new View.OnClickListener() {
@@ -224,21 +235,52 @@ public class ScanFragment extends Fragment {
         }
     }
 
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           @NonNull String[] permissions,
+//                                           @NonNull int[] grantResults) {
+//        if (requestCode != RC_HANDLE_CAMERA_PERM) {
+//            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//            return;
+//        }
+//
+//        if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//            startTextRecognizer();
+//        } else {
+//            Toast.makeText(getActivity(), "Permission denied", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode != RC_HANDLE_CAMERA_PERM) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            return;
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case 123: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //If user presses allow
+                    //Toast.makeText(OcrCameraScanningActivity.this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+                    startAppAgain();
+                    startTextRecognizer();
+                    Toast.makeText(getActivity(), "Permission GRANTED", Toast.LENGTH_SHORT).show();
+                } else {
+                    //If user presses deny
+                    Toast.makeText(getActivity(), "Permission DENIED", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
         }
+    }
 
-        if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startTextRecognizer();
-        } else {
-            Toast.makeText(getActivity(), "Permission denied", Toast.LENGTH_SHORT).show();
-        }
-
+    private void startAppAgain() {
+        Intent mStartActivity = new Intent(getActivity(), MainActivity.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getActivity(getActivity(), mPendingIntentId, mStartActivity,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
+        System.exit(0);
     }
 
     private void askCameraPermission() {
@@ -326,6 +368,7 @@ public class ScanFragment extends Fragment {
         saveRecordingBtn_ID = (Button) view.findViewById(R.id.saveRecordingBtn_ID);
         stopRecordingBtn_ID = (Button) view.findViewById(R.id.stopRecordingBtn_ID);
         saveNormalBtn_ID = (Button) view.findViewById(R.id.saveNormalBtn_ID);
+        cancelBtn_ID = (Button) view.findViewById(R.id.cancelBtn_ID);
 
         scanningTxt_ID.setText(scanContent);
 
@@ -336,7 +379,17 @@ public class ScanFragment extends Fragment {
                 //Ocr History Management
                 DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
                 databaseHelper.addProduct(new Product(scanContent, getScanTime(), getScanDate(), pathSave));
+                stopVoice();
                 Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_LONG).show();
+                //dialog.dismiss();
+            }
+        });
+
+        cancelBtn_ID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                stopVoice();
                 dialog.dismiss();
             }
         });
@@ -444,7 +497,7 @@ public class ScanFragment extends Fragment {
             public void onClick(View v) {
 
                 DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
-                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave));
+                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave,scanContent));
                 Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
                 dialogTitle.dismiss();
             }

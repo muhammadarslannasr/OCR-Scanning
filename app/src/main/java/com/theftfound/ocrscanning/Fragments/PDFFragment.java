@@ -69,6 +69,7 @@ public class PDFFragment extends Fragment {
     private AlertDialog dialogTitle;
     private LayoutInflater inflaterTitle;
     Button saveNormalBtn_ID;
+    Button cancelBtn_ID;
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -179,7 +180,16 @@ public class PDFFragment extends Fragment {
         saveRecordingBtn_ID = (Button) view.findViewById(R.id.saveRecordingBtn_ID);
         stopRecordingBtn_ID = (Button) view.findViewById(R.id.stopRecordingBtn_ID);
         saveNormalBtn_ID = (Button) view.findViewById(R.id.saveNormalBtn_ID);
+        cancelBtn_ID = (Button) view.findViewById(R.id.cancelBtn_ID);
         scanningTxt_ID.setText(sb.toString());
+
+        cancelBtn_ID.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopVoice();
+                dialog.dismiss();
+            }
+        });
 
         saveNormalBtn_ID.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,8 +198,9 @@ public class PDFFragment extends Fragment {
                 //Ocr History Management
                 DatabaseHelper databaseHelper = new DatabaseHelper(getActivity());
                 databaseHelper.addProduct(new Product(sb.toString(), getScanTime(), getScanDate(), pathSave));
+                stopVoice();
                 Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_LONG).show();
-                dialog.dismiss();
+                //dialog.dismiss();
             }
         });
 
@@ -294,8 +305,10 @@ public class PDFFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+//                DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
+//                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave));
                 DatabaseRecordingHelper databaseHelper = new DatabaseRecordingHelper(getActivity());
-                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave));
+                databaseHelper.addProduct(new Product(etTitle_ID.getText().toString().trim(), getScanTime(), getScanDate(), pathSave,scanContent));
                 Toast.makeText(getActivity(), "Saved!", Toast.LENGTH_SHORT).show();
                 dialogTitle.dismiss();
             }

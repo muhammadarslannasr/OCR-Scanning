@@ -41,7 +41,7 @@
                     android:textColor="#fff"
                     android:textSize="8pt"
                     android:layout_marginLeft="10dp"
-                    android:text="@string/scan_your_first"/>
+                    android:text="Recording History shown here currently it's empty"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>

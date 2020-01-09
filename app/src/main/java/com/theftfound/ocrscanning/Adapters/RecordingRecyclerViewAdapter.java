@@ -70,7 +70,7 @@ public class RecordingRecyclerViewAdapter extends RecyclerView.Adapter<Recording
     @Override
     public void onBindViewHolder(@NonNull RecordingRecyclerViewAdapter.ViewHolder holder, int position) {
         Product product = (Product) productArrayList.get(position);
-        holder.scanner_txt.setText(product.getSongPath());
+        holder.scanner_txt.setText(product.getSound_storeText());
         holder.time_ID.setText(product.getScanDate()+" "+product.getScanTime());
     }
 
